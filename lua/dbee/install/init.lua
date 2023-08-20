@@ -93,6 +93,8 @@ local function get_job(command)
       env = {},
     })
   end
+
+  return commands
 end
 
 ---@param jobs table jobs to run in order
