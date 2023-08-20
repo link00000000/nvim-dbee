@@ -84,85 +84,14 @@ local function get_job(command)
     env = {},
   }
 
-  local jobs_list = {
-    wget = function()
-      return {
-        {
-          cmd = "wget",
-          args = { "-qO", install_binary, get_url(osys, arch) },
-          env = {},
-        },
-        chmod,
-      }
-    end,
-    curl = function()
-      return {
-        {
-          cmd = "curl",
-          args = { "-sfLo", install_binary, get_url(osys, arch) },
-          env = {},
-        },
-        chmod,
-      }
-    end,
-    bitsadmin = function()
-      return {
-        {
-          cmd = "bitsadmin",
-          args = { "TODO" },
-          env = {},
-        },
-      }
-    end,
-    go = function()
-      return {
-        {
-          cmd = "go",
-          args = { "build", "-C", M.source_path(), "-o", install_binary },
-          env = {},
-        },
-      }
-    end,
-    cgo = function()
-      return {
-        {
-          cmd = "go",
-          args = { "build", "-C", M.source_path(), "-o", install_binary },
-          env = { CGO_ENABLED = "1" },
-        },
-      }
-    end,
+  return {
+    {
+      cmd = "curl",
+      args = { "-sfLo", install_binary, get_url(osys, arch) },
+      env = {},
+    },
+    chmod,
   }
-  -- priority list
-  local prio_job_list = { "wget", "curl", "bitsadmin", "go" }
-
-  -- if command is provided use it
-  if command then
-    local jobs = jobs_list[command]() or {}
-    for _, j in ipairs(jobs) do
-      if vim.fn.executable(j.cmd) ~= 1 then
-        error('"' .. command .. '" is not a supported installation method')
-      end
-    end
-    return jobs
-  end
-
-  -- else find the first suitable command
-  for _, cmd in ipairs(prio_job_list) do
-    local jobs = jobs_list[cmd]() or {}
-    local ignore = false
-    for _, j in ipairs(jobs) do
-      if vim.fn.executable(j.cmd) ~= 1 then
-        ignore = true
-        break
-      end
-    end
-    if not ignore then
-      return jobs
-    end
-  end
-
-  error("no suitable installation method found")
 end
 
 ---@param jobs table jobs to run in order
