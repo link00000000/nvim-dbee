@@ -78,20 +78,21 @@ local function get_job(command)
   -- make install dir
   vim.fn.mkdir(install_dir, "p")
 
-  local chmod = {
-    cmd = "chmod",
-    args = { "+x", install_binary },
-    env = {},
-  }
-
-  return {
+  local commands = {
     {
       cmd = "curl",
       args = { "-sfLo", install_binary, get_url(osys, arch) },
       env = {},
     },
-    chmod,
   }
+
+  if vim.loop.os_uname().sysname ~= "Windows_NT" then
+    table.insert(commands, {
+      cmd = "chmod",
+      args = { "+x", install_binary },
+      env = {},
+    })
+  end
 end
 
 ---@param jobs table jobs to run in order
